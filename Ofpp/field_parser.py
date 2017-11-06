@@ -6,9 +6,9 @@ parser for field data
 from __future__  import print_function
 
 import re
-import numpy as np
-from io import StringIO
 import os
+import io
+import numpy as np
 
 
 def parse_field_all(fn):
@@ -20,7 +20,7 @@ def parse_field_all(fn):
     if not os.path.exists(fn):
         print("Can not open file " + fn)
         return None
-    with open(fn, encoding="utf-8") as f:
+    with io.open(fn, encoding="utf-8") as f:
         content = f.readlines()
         return parse_internal_field_content(content), parse_boundary_content(content)
 
@@ -34,7 +34,7 @@ def parse_internal_field(fn):
     if not os.path.exists(fn):
         print("Can not open file " + fn)
         return None
-    with open(fn, encoding="utf-8") as f:
+    with io.open(fn, encoding="utf-8") as f:
         content = f.readlines()
         return parse_internal_field_content(content)
 
@@ -66,7 +66,7 @@ def parse_boundary_field(fn):
     if not os.path.exists(fn):
         print("Can not open file " + fn)
         return None
-    with open(fn, encoding="utf-8") as f:
+    with io.open(fn, encoding="utf-8") as f:
         content = f.readlines()
         return parse_boundary_content(content)
 
@@ -110,7 +110,7 @@ def parse_data_uniform(line):
     p = re.compile('uniform\s*\((.*)\)')
     ps = p.search(line)
     if ps is not None:
-        return np.loadtxt(StringIO(ps.group(1)))
+        return np.loadtxt(io.StringIO(ps.group(1)))
     p = re.compile('uniform\s*(.*);')
     ps = p.search(line)
     if ps is not None:
@@ -132,9 +132,9 @@ def parse_data_nonuniform(content, n, is_vector):
     """
     num = int(content[n + 1])
     if is_vector:
-        data = np.loadtxt(StringIO('\n'.join([s[1:-2] for s in content[n + 3:n + 3 + num]])))
+        data = np.loadtxt(io.StringIO('\n'.join([s[1:-2] for s in content[n + 3:n + 3 + num]])))
     else:
-        data = np.loadtxt(StringIO('\n'.join(content[n + 3:n + 3 + num])))
+        data = np.loadtxt(io.StringIO('\n'.join(content[n + 3:n + 3 + num])))
     return data
 
 
