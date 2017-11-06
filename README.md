@@ -1,6 +1,8 @@
 # Ofpp
 Ofpp stands for OpenFOAM Python Parser. It is a simple Python library for parsing data in OpenFOAM output files to Numpy array.
 
+*limits*: only support ascii format file.
+
 ## Installation
 
 The simplest way: download the source code and add Ofpp directory to your Python path.
@@ -11,7 +13,15 @@ Or install with setup.py by:
 python setup.py install
 ```
 
-The depended package if Ofpp is Numpy.
+The depended package of Ofpp is Numpy.
+
+You can also install with pip:
+
+```shell
+pip install Ofpp
+```
+
+
 
 ## Usage
 
@@ -51,7 +61,7 @@ alpha.water  alpha.water.orig  p_rgh  U  V
 
 ### Use Ofpp to process data
 
-Firstly, using function `parse_internal_field` parse '0/V' to get cell volume data,
+Firstly, use function `parse_internal_field` to parse '0/V' and get cell volume data,
 
 ```python
 >>> import Ofpp
@@ -83,7 +93,7 @@ Parse alpha.water to get water's volume fraction,
 >>>
 ```
 
-Parse alpha.water of all time step, and calculate water volume of each time to check mass ballance: 
+Parse alpha.water of all time steps, and calculate water volume of each time to check mass ballance: 
 
 ```python
 >>> import numpy as np
@@ -96,7 +106,7 @@ Parse alpha.water of all time step, and calculate water volume of each time to c
 >>> pl.plot(np.arange(0, 1.01, 0.05), [sum(x*V) for x in Wa], 's-')
 ```
 
-Parse velocity field, which is vector field. And calculate the velocity magnitude,
+Parse velocity field, which is a vector field. And calculate the velocity magnitude,
 
 ```python
 >>> U01=Ofpp.parse_internal_field('0.1/U')
@@ -122,7 +132,7 @@ array([ 0.,  0.,  0.])
 
 ### boundary data
 
-Boundary data parsed by Ofpp is a dictionary because there are usualy more than one boundary entities.  Its kes are boundary names and values are also dictionaries.
+Boundary data parsed by Ofpp is a dictionary because there are usually more than one boundary entities.  Its keys are boundary names and values are also dictionaries.
 
 ```python
 >>> b01=Ofpp.parse_boundary_field('0.1/alpha.water')
