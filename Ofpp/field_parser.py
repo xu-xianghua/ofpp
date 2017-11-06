@@ -48,7 +48,7 @@ def parse_internal_field_content(content):
     for ln, lc in enumerate(content):
         if lc.startswith('internalField'):
             if 'nonuniform' in lc:
-                if 'vector' in lc:
+                if 'vector' in lc or 'tensor' in lc:
                     return parse_data_nonuniform(content, ln, True)
                 return parse_data_nonuniform(content, ln, False)
             elif 'uniform' in lc:
@@ -85,7 +85,7 @@ def parse_boundary_content(content):
         while True:
             lc = content[n]
             if 'nonuniform' in lc:
-                if 'vector' in lc:
+                if 'vector' in lc or 'tensor' in lc:
                     v = parse_data_nonuniform(content, n, True)
                 else:
                     v = parse_data_nonuniform(content, n, False)
