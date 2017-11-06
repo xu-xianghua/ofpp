@@ -11,7 +11,8 @@ packages = [
 config = {
     'author': 'XU Xianghua',
     'author_email': 'dayigu@gmail.com',
-    'description': 'A simple Python code for parse OpenFOAM data to Numpy.array',
+    'url': 'https://github.com/dayigu/ofpp',
+    'description': 'A simple Python code to parse OpenFOAM data to Numpy.array',
     'license': 'MIT',
     'version': '0.1',
     'packages': [package_name],
