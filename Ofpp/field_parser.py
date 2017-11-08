@@ -107,11 +107,11 @@ def parse_data_uniform(line):
     :param line: a line include uniform data, eg. "value           uniform (0 0 0);"
     :return: data
     """
-    p = re.compile('uniform\s*\((.*)\)')
+    p = re.compile(r'uniform\s*\((.*)\)')
     ps = p.search(line)
     if ps is not None:
-        return np.loadtxt(io.StringIO(ps.group(1)))
-    p = re.compile('uniform\s*(.*);')
+        return np.fromstring(ps.group(1))
+    p = re.compile(r'uniform\s*(.*);')
     ps = p.search(line)
     if ps is not None:
         try:
@@ -122,9 +122,10 @@ def parse_data_uniform(line):
     else:
         return None
 
+
 def parse_data_nonuniform(content, n, is_vector):
     """
-    parse uniform data from a line
+    parse nonuniform data from lines
     :param content: data content
     :param n: line number
     :param is_vector: data is vector or not
@@ -132,9 +133,9 @@ def parse_data_nonuniform(content, n, is_vector):
     """
     num = int(content[n + 1])
     if is_vector:
-        data = np.loadtxt(io.StringIO('\n'.join([s[1:-2] for s in content[n + 3:n + 3 + num]])))
+        data = np.array([ln[1:-2].split() for ln in content[n + 3:n + 3 + num]], dtype=float)
     else:
-        data = np.loadtxt(io.StringIO('\n'.join(content[n + 3:n + 3 + num])))
+        data = np.array([float(x) for x in content[n + 3:n + 3 + num]])
     return data
 
 
