@@ -8,7 +8,7 @@ import numpy as np
 import os
 import struct
 from collections import namedtuple
-from field_parser import parse_internal_field, is_binary_format
+from .field_parser import parse_internal_field, is_binary_format
 
 Boundary = namedtuple('Boundary', 'type, num, start, id')
 
