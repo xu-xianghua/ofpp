@@ -1,13 +1,15 @@
 # Ofpp
-Ofpp stands for OpenFOAM Python Parser. It is a simple Python library for parsing data in OpenFOAM output files to Numpy array.
-
-*limits*: only support ascii format file.
+Ofpp stands for OpenFOAM Python Parser. It is a simple Python library for parsing data or mesh in OpenFOAM output files to Numpy array. Both ascii and binary format are supported.
 
 ## Installation
 
-The simplest way: download the source code and add Ofpp directory to your Python path.
+Install with pip:
 
-Or install with setup.py by:
+```shell
+pip install Ofpp
+```
+
+or install with setup.py by:
 
 ```shell
 python setup.py install
@@ -15,13 +17,52 @@ python setup.py install
 
 The depended package of Ofpp is Numpy.
 
-You can also install with pip:
+## APIs
 
-```shell
-pip install Ofpp
-```
+### parse field data
 
+- parse_internal_field(fn):  parse internal field data from file **fn**, and return field data as numpy.array
+- parse_boundary_field(fn): parse boundary field data from file **fn**, return boundary dictionary with boundary name as keys and Numpy.array as values.
+- parse_field_all(fn): parse internal field data and boundary field data from file **fn**.
 
+### parse mesh
+
+Class FoamMesh can parse mesh data (in ascii or binary format) and provide inquiry.
+
+#### instantiation 
+
+- FoamMesh(path): initialization of class, read and parse mesh data (points, boundary, owner, neighbour, faces)  from path/constant/polyMesh
+
+#### instance variables
+
+- points:  Numpy.array, coordinates of points, in order of point id, read from mesh file **points**
+- owner:  a list, the owner cell id of each face, in order of face id, read from mesh file **owner**
+- neighbour:  a list, the neighbour cell id of each face, read from mesh file **neighbour**. For faces on boudary, their neighbours are boundary's id.
+- faces: list of list, the ids of points composed the face, in order of face id, read from mesh file **faces**
+- boundary: dictionary, with key of boundary name, value of a namedtuple, `namedtuple('Boundary', 'type, num, start, id')`, in which num is face numer, start is the id of start face, id is the boundary id, equals to `-10 - index`.
+- num_point: points number
+- num_face: face number
+- num_inner_face:  inner face number
+- num_cell: cell number
+- cell_centres: Numpy.array, cell centre coordinates, read from field file, default is None
+- cell_volumes: Numpy.array, cell volumes, read from field file, None for default
+- face_areas: Numpy.array, face areas, read from field file, None for default
+- cell_neighours: list of list, cell neibour cells' id, in order of cell id
+- cell_faces: list of list, cell's face id, in order of cell id
+
+#### class methods
+
+- parse_points_content(content): parse points data from mesh file's content, in binary mode
+- parse_owner_neighbour_content(content): parse owner or neighbour data from mesh file's content, in binary mode
+- parse_faces_content(content): parse faces data from mesh file's content, in binary mode
+- parse_boundary_content(content): parse boundary data from mesh file's content, in binary mode
+
+#### mesh inquiry interface
+
+- cell_neighbour_cells(i): return cell neighbours' id of cell i, in list
+- boundary_cells(bd): return a generator of cell's id adjacent to boundary **bd**
+- is_cell_on_boundary(i, bd): check if cell i is on boundary **bd**. if **bd** is None, check all boundaries.
+- is_face_on_boundary(i, bd): check if face i is on boundary **bd**. if **bd** is None, check all boundaries.
 
 ## Usage
 
@@ -30,9 +71,12 @@ import Ofpp
 V = Ofpp.parse_internal_field('0/V')
 wb01 = Ofpp.parse_boundary_field('0.1/alpha.water')
 U02,Ub02 = Ofpp.parse_field_all('0.2/U')
+mesh = Ofpp.FoamMesh('.')
+wall_cells = list(mesh.boundary_cells(b'fixedWall'))
+cell_neighbour_5 = mesh.cell_neighbour_cells(5)
 ```
 
-The data of internal field is Numpy.array, and data of boundary is dictionary with boundary name as keys and Numpy.array as values.
+
 
 ## Tutorial
 
@@ -137,14 +181,14 @@ Boundary data parsed by Ofpp is a dictionary because there are usually more than
 ```python
 >>> b01=Ofpp.parse_boundary_field('0.1/alpha.water')
 >>> b01.keys()
-dict_keys(['rightWall', 'atmosphere', 'leftWall', 'lowerWall', 'defaultFaces'])
->>> b01['atmosphere'].keys()
-dict_keys(['inletValue', 'value'])
->>> b01['atmosphere']['inletValue']
+dict_keys([b'rightWall', b'atmosphere', b'leftWall', b'lowerWall', b'defaultFaces'])
+>>> b01[b'atmosphere'].keys()
+dict_keys([b'inletValue', b'value'])
+>>> b01[b'atmosphere'][b'inletValue']
 0.0
->>> b01['atmosphere']['value'].shape
+>>> b01[b'atmosphere'][b'value'].shape
 (46,)
->>> b01['atmosphere']['value']
+>>> b01[b'atmosphere'][b'value']
 array([  0.00000000e+00,   0.00000000e+00,   0.00000000e+00,
          0.00000000e+00,   0.00000000e+00,   0.00000000e+00,
          0.00000000e+00,   0.00000000e+00,   0.00000000e+00,
@@ -164,11 +208,57 @@ array([  0.00000000e+00,   0.00000000e+00,   0.00000000e+00,
 >>>
 ```
 
+### mesh
+
+Create a FoamMesh object and read mesh file.
+
+```python
+>>> mesh = Ofpp.FoamMesh('.')
+>>> mesh.num_face
+9176
+>>> mesh.num_inner_face
+4432
+>>> mesh.num_cell
+2267
+>>> mesh.num_point
+4746
+>>> mesh.boundary
+{b'lowerWall': Boundary(type=b'wall', num=62, start=4532, id=-12), 
+ b'rightWall': Boundary(type=b'wall', num=50, start=4482, id=-11), 
+ b'atmosphere': Boundary(type=b'patch', num=46, start=4594, id=-13), 
+ b'defaultFaces': Boundary(type=b'empty', num=4536, start=4640, id=-14), 
+ b'leftWall': Boundary(type=b'wall', num=50, start=4432, id=-10)}
+>>>
+
+```
+
+Read outside data for cell volumes, cell centers
+
+```python
+>>> mesh.read_cell_volumes('0/V')
+>>> mesh.read_cell_centres('0/C')
+                           
+```
+
+Mesh inquiry:
+
+```python
+>>> mesh.cell_neighbour_cells(300)
+[281, 299, 301, 319, -14, -14]
+>>> mesh.cell_faces[134]
+[263, 264, 4797, 4981, 219, 261]
+>>> cell_to_wall=list(mesh.boundary_cells(b'leftWall'))
+>>> len(cell_to_wall)
+50
+>>> mesh.is_cell_on_boundary(545)
+True
+>>> mesh.is_cell_on_boundary(545, b'atmosphere')
+False
+>>> mesh.is_face_on_boundary(334, b'leftWall')
+False
+```
 
 
-## TODO
-
--  mesh data parser and mesh manipulation utilities
 
 ## Author
 
