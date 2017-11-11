@@ -8,7 +8,7 @@ import numpy as np
 import os
 import struct
 from collections import namedtuple
-from .field_parser import parse_internal_field, is_binary_format
+from field_parser import parse_internal_field, is_binary_format
 
 Boundary = namedtuple('Boundary', 'type, num, start, id')
 
@@ -112,25 +112,17 @@ class FoamMesh(object):
             return True
         return False
 
-    def boundary_cells(self, bd=None):
+    def boundary_cells(self, bd):
         """
         return cell id list on boundary bd
         :param bd: boundary name, byte str
-        :return: cell id list
+        :return: cell id generator
         """
-        cell = []
-        if bd is None:  # return all cells on boundary
-            for b in self.boundary.values():
-                for f in range(b.start, b.start+b.num):
-                    cell.append(self.owner[f])
-        else:
-            try:
-                b = self.boundary[bd]
-                for f in range(b.start, b.start+b.num):
-                    cell.append(self.owner[f])
-            except KeyError:
-                return None
-        return cell
+        try:
+            b = self.boundary[bd]
+            return (self.owner[f] for f in range(b.start, b.start+b.num))
+        except KeyError:
+            return ()
 
     def _set_boundary_faces(self):
         """
