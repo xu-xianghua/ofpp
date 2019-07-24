@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import numpy as np
 import os
+import re
 import struct
 from collections import namedtuple
 from .field_parser import parse_internal_field, is_binary_format
@@ -244,7 +245,7 @@ class FoamMesh(object):
             if is_integer(lc):
                 num = int(lc)
                 if not is_binary:
-                    data = [[int(s) for s in ln[2:-2].split()] for ln in content[n + 2:n + 2 + num]]
+                    data = [[int(s) for s in re.findall(b"\d+", ln)[1:]] for ln in content[n + 2:n + 2 + num]]
                 else:
                     buf = b''.join(content[n+1:])
                     disp = struct.calcsize('c')
