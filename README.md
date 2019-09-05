@@ -1,12 +1,12 @@
-# Ofpp
-Ofpp stands for OpenFOAM Python Parser. It is a simple Python library for parsing data or mesh in OpenFOAM output files to Numpy array. Both ascii and binary format are supported.
+# Openfoamparser
+This is a simple Python library for parsing result or mesh files in OpenFOAM output files to Numpy arrays. Both ascii and binary format are supported.
 
 ## Installation
 
 Install with pip:
 
 ```shell
-pip install Ofpp
+pip install openfoamparser
 ```
 
 or install with setup.py by:
@@ -15,7 +15,7 @@ or install with setup.py by:
 python setup.py install
 ```
 
-The depended package of Ofpp is Numpy.
+This package requires numpy.
 
 ## APIs
 
@@ -260,6 +260,12 @@ False
 
 
 
-## Author
+## Authors
 
 XU Xianghua <dayigu at gmail dot com>
+
+Jan Drees <jdrees at mail dot uni-paderborn dot de>
+
+Timothy-Edward-Kendon
+
+YuyangL
