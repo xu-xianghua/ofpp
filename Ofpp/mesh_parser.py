@@ -30,7 +30,7 @@ class FoamMesh(object):
         self.num_point = len(self.points)
         self.num_face = len(self.owner)
         self.num_inner_face = len(self.neighbour)
-        self.num_cell = max(self.owner)
+        self.num_cell = max(max(self.owner), max(self.neighbour)) + 1
         self._set_boundary_faces()
         self._construct_cells()
         self.cell_centres = None
