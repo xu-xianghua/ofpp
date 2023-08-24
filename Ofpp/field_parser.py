@@ -154,7 +154,7 @@ def split_boundary_content(content):
     n = 0
     in_boundary_field = False
     in_patch_field = False
-    current_path = ''
+    current_patch = ''
     while True:
         lc = content[n]
         if lc.startswith(b'boundaryField'):
@@ -173,15 +173,15 @@ def split_boundary_content(content):
                 break
             if in_patch_field:
                 if lc.strip() == b'}':
-                    bd[current_path][1] = n-1
+                    bd[current_patch][1] = n-1
                     in_patch_field = False
-                    current_path = ''
+                    current_patch = ''
                 n += 1
                 continue
             if lc.strip() == b'':
                 n += 1
                 continue
-            current_path = lc.strip()
+            current_patch = lc.strip()
             if content[n+1].strip() == b'{':
                 n += 2
             elif content[n+1].strip() == b'' and content[n+2].strip() == b'{':
@@ -190,7 +190,7 @@ def split_boundary_content(content):
                 print('no { after boundary patch')
                 break
             in_patch_field = True
-            bd[current_path] = [n,n]
+            bd[current_patch] = [n,n]
             continue
         n += 1
         if n > len(content):
