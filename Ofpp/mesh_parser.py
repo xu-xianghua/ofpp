@@ -240,26 +240,30 @@ class FoamMesh(object):
         :return: faces as list
         """
         n = skip
+        num = -1
         while n < len(content):
-            lc = content[n]
-            if is_integer(lc):
-                num = int(lc)
-                if not is_binary:
-                    data = [[int(s) for s in re.findall(b"\d+", ln)[1:]] for ln in content[n + 2:n + 2 + num]]
-                else:
-                    buf = b''.join(content[n+1:])
-                    disp = struct.calcsize('c')
-                    idx = struct.unpack('{}i'.format(num), buf[disp:num*struct.calcsize('i') + disp])
-                    disp = 3*struct.calcsize('c') + 2*struct.calcsize('i')
-                    pp = struct.unpack('{}i'.format(idx[-1]),
-                                       buf[disp+num*struct.calcsize('i'):
-                                           disp+(num+idx[-1])*struct.calcsize('i')])
-                    data = []
-                    for i in range(num - 1):
-                        data.append(pp[idx[i]:idx[i+1]])
-                return data
+            if is_integer(content[n]):
+                num = int(content[n])
+                break
             n += 1
-        return None
+        if num < 0:
+            return None
+        if not is_binary:
+            return [[int(s) for s in re.findall(b"\d+", ln)[1:]] for ln in content[n + 2:n + 2 + num]]
+        n2 = n + 1
+        while n2 < len(content):
+            if is_integer(content[n2]):
+                size = int(content[n2])
+                if size > num:  # size = (num-1)*4
+                    break
+            n2 += 1
+        buf = b''.join(content[n+1:n2])
+        disp = struct.calcsize('c')
+        idx = struct.unpack('{}i'.format(num), buf[disp:disp+num*struct.calcsize('i')])
+        buf = b''.join(content[n2+1:])
+        pp = struct.unpack('{}i'.format(idx[-1]), buf[disp:disp+idx[-1]*struct.calcsize('i')])
+        data = [pp[idx[i]:idx[i+1]] for i in range(num - 1)]
+        return data
 
     @classmethod
     def parse_boundary_content(cls, content, is_binary=None, skip=10):
