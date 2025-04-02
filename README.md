@@ -1,4 +1,5 @@
 # Ofpp
+
 Ofpp stands for OpenFOAM Python Parser. It is a simple Python library for parsing data or mesh in OpenFOAM output files to Numpy array. Both ascii and binary format are supported.
 
 ## Installation
@@ -29,7 +30,7 @@ The depended package of Ofpp is Numpy.
 
 Class FoamMesh can parse mesh data (in ascii or binary format) and provide inquiry.
 
-#### instantiation 
+#### instantiation
 
 - FoamMesh(path): initialization of class, read and parse mesh data (points, boundary, owner, neighbour, faces)  from path/constant/polyMesh
 
@@ -39,7 +40,7 @@ Class FoamMesh can parse mesh data (in ascii or binary format) and provide inqui
 - owner:  a list, the owner cell id of each face, in order of face id, read from mesh file **owner**
 - neighbour:  a list, the neighbour cell id of each face, read from mesh file **neighbour**. For faces on boudary, their neighbours are boundary's id.
 - faces: list of list, the ids of points composed the face, in order of face id, read from mesh file **faces**
-- boundary: dictionary, with key of boundary name, value of a namedtuple, `namedtuple('Boundary', 'type, num, start, id')`, in which num is face numer, start is the id of start face, id is the boundary id, equals to `-10 - index`.
+- boundary: dictionary, with key of boundary name, value of a namedtuple, `namedtuple('Boundary', 'type, num, start, neighbourPatch, id')`, in which num is face numer, start is the id of start face, neighbourPatch is the neighbour patch of cyclic boundary, id is the boundary id, equals to `-10 - index`.
 - num_point: points number
 - num_face: face number
 - num_inner_face:  inner face number
@@ -75,8 +76,6 @@ mesh = Ofpp.FoamMesh('.')
 wall_cells = list(mesh.boundary_cells(b'fixedWall'))
 cell_neighbour_5 = mesh.cell_neighbour_cells(5)
 ```
-
-
 
 ## Tutorial
 
@@ -137,7 +136,7 @@ Parse alpha.water to get water's volume fraction,
 >>>
 ```
 
-Parse alpha.water of all time steps, and calculate water volume of each time to check mass ballance: 
+Parse alpha.water of all time steps, and calculate water volume of each time to check mass ballance:
 
 ```python
 >>> import numpy as np
@@ -171,8 +170,6 @@ Noticing that some fields are uniform, eg. initial velocity, whose data is a vec
 array([ 0.,  0.,  0.])
 >>>
 ```
-
-
 
 ### boundary data
 
@@ -237,7 +234,7 @@ Read outside data for cell volumes, cell centers
 ```python
 >>> mesh.read_cell_volumes('0/V')
 >>> mesh.read_cell_centres('0/C')
-                           
+                       
 ```
 
 Mesh inquiry:
@@ -258,8 +255,6 @@ False
 False
 ```
 
-
-
 ## Author
 
-XU Xianghua <dayigu at gmail dot com>
+XU Xianghua `<dayigu at gmail dot com>`

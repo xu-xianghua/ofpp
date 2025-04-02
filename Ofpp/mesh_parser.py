@@ -11,7 +11,7 @@ import struct
 from collections import namedtuple
 from .field_parser import parse_internal_field, is_binary_format
 
-Boundary = namedtuple('Boundary', 'type, num, start, id')
+Boundary = namedtuple('Boundary', 'type, num, start, neighbourPatch, id')
 
 
 def is_integer(s):
@@ -284,6 +284,7 @@ class FoamMesh(object):
         current_type = b''
         current_nFaces = 0
         current_start = 0
+        current_neighbourPatch = None
         while True:
             if n > len(content):
                 if in_boundary_field:
@@ -309,15 +310,19 @@ class FoamMesh(object):
                 if in_patch_field:
                     if lc.strip() == b'}':
                         in_patch_field = False
-                        bd[current_patch] = Boundary(current_type, current_nFaces, current_start, -10-bid)
+                        bd[current_patch] = Boundary(current_type, current_nFaces, current_start, 
+                                                     current_neighbourPatch, -10-bid)
                         bid += 1
                         current_patch = b''
+                        current_neighbourPatch = None
                     elif b'nFaces' in lc:
                         current_nFaces = int(lc.split()[1][:-1])
                     elif b'startFace' in lc:
                         current_start = int(lc.split()[1][:-1])
                     elif b'type' in lc:
                         current_type = lc.split()[1][:-1]
+                    elif b'neighbourPatch' in lc:
+                        current_neighbourPatch = lc.split()[1][:-1]
                 else:
                     if lc.strip() == b'':
                         n += 1
