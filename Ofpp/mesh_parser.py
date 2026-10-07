@@ -9,6 +9,7 @@ import os
 import re
 import struct
 from collections import namedtuple
+from pathlib import Path
 from .field_parser import parse_internal_field, is_binary_format
 
 Boundary = namedtuple('Boundary', 'type, num, start, id')
@@ -25,7 +26,10 @@ def is_integer(s):
 class FoamMesh(object):
     """ FoamMesh class """
     def __init__(self, path):
-        self.path = os.path.join(path, "constant/polyMesh/")
+        self.path = Path(path)
+        if not path.name == "polyMesh":
+            self.path = self.path / "constant/polyMesh/"
+        
         self._parse_mesh_data(self.path)
         self.num_point = len(self.points)
         self.num_face = len(self.owner)

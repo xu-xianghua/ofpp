@@ -64,6 +64,12 @@ Class FoamMesh can parse mesh data (in ascii or binary format) and provide inqui
 - is_cell_on_boundary(i, bd): check if cell i is on boundary **bd**. if **bd** is None, check all boundaries.
 - is_face_on_boundary(i, bd): check if face i is on boundary **bd**. if **bd** is None, check all boundaries.
 
+### parse post processing data
+- parse_postproc_matrix(fn): read data in simple matrix format, where all values are expected to be numeric, from file **fn** and return the data (numpy.ndarray), headers (list of strings), and the comments at the top of the file (list of strings). 
+- parse_postproc_matrix_with_patch(fn): read data where the data contains patch names from file **fn**. Returns the data (dictionary of numpy.ndarray, with patch names as keys), headers (list of strings), and the comments at the top of the file (list of strings). 
+- parse_postproc_time_series(path, fn, type): Read a postProcessing time series saved under the same folder but with multiple restarts. Type: 0 -> simple matrix; 1 -> with patches
+
+
 ## Usage
 
 ```python
